@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:property name="wall_x" value="${0.5}"/>
+<xacro:property name="wall_y" value="${3.0}"/>
+<xacro:property name="wall_z" value="${3.0}"/>
+<xacro:property name="wall_mass" value="${10}"/>
+
+<xacro:property name="wall_inertia">
+    <origin xyz="0 0 0"/>
+    <mass value="${wall_mass}"/>
+    <inertia  ixx="${wall_mass*(wall_y*wall_y+wall_z*wall_z)/12}" ixy = "0" ixz = "0" iyy="${wall_mass*(wall_x*wall_x+wall_z*wall_z)/12}" iyz = "0" izz="${wall_mass*(wall_x*wall_x+wall_z*wall_z)/12}" />
+</xacro:property>
+    
+<xacro:macro name="model_wall" params="parent name *origin wall_x wall_y wall_z">
+    <joint name="${name}_joint" type="fixed">
+        <xacro:insert_block name="origin"/>
+        <parent link="${parent}" />
+        <child link="${name}_link" />
+    </joint>
+    <link name="${name}_link">
+		<inertial>
+            <xacro:insert_block name="wall_inertia"/>
+        </inertial>
+		<visual>
+			<origin xyz="0.0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="${wall_x/2} ${wall_y} ${wall_z}"/>
+			</geometry>
+			<material name="Boris/LightGrey"/>
+		</visual>
+		<collision>
+			<origin xyz="0.0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<box size="${wall_x/2} ${wall_y} ${wall_z}"/>
+			</geometry>
+		</collision>
+	</link>
+
+	<gazebo reference="${name}_link">
+        <!-- <static>true</static> -->
+    </gazebo>
+</xacro:macro>
+</robot>

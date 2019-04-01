@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" 
+       name="boris_calib">
+       
+  <xacro:include filename="$(find boris_description)/model/torso.urdf.xacro"/>
+  <xacro:include filename="$(find boris_description)/model/wall.urdf.xacro"/>
+  <xacro:include filename="$(find boris_description)/model/table.urdf.xacro"/>
+  <xacro:include filename="$(find boris_description)/model/materials.urdf"/>
+  <xacro:include filename="$(find boris_description)/model/calibrator.urdf.xacro"/>
+  <xacro:include filename="$(find lwr_description)/model/kuka_lwr.urdf.xacro"/>
+    
+  <link name="boris_anchor" />
+  
+  <!-- BODY -->
+  <xacro:model_table name="table" 
+                    parent="boris_anchor"
+                    length="0.725"
+                    width="1.05"
+                    height="0.910"
+                    plate_thickness="0.05">
+    <origin xyz="-0.495 0.55 0" rpy="0 0 0"/>
+  </xacro:model_table>
+
+  <!-- WORKBENCH -->
+  <xacro:model_table name="workbench"
+                    parent="boris_anchor"
+                    length="0.725"
+                    width="1.05"
+                    height="0.960"
+                    plate_thickness="0.1">
+  <origin xyz="-1.25 0.55 0.05" rpy="0 0 0"/>
+  </xacro:model_table>
+  
+  <xacro:model_torso name="torso" parent="boris_anchor">
+    <origin xyz="0 0 0"/>
+  </xacro:model_torso>
+  
+  <xacro:kuka_lwr name="left_arm" parent="boris_anchor">
+    <origin xyz="-0.165 -0.1085854 0.390" rpy="1.5707963267948966 0.5235987010713441 -0.5235990737060282"/>
+  </xacro:kuka_lwr>
+  
+  <xacro:kuka_lwr name="right_arm" parent="boris_anchor">
+    <origin xyz="-0.165 0.10858 0.390" rpy="-1.5707963267948966 0.5235987010713441 0.5235990737060282"/>
+  </xacro:kuka_lwr>
+
+  <!-- from the CAD model, the frame coincides with the 7-th link -->
+  <xacro:calibrator name="calibrator_10" parent="right_arm_7_link">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:calibrator>
+
+  <xacro:calibrator name="calibrator_20" parent="left_arm_7_link">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:calibrator>
+
+</robot>

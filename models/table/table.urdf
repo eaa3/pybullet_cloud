@@ -10,20 +10,21 @@
       <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
     </inertial>
     <visual>
-      <origin rpy="0 0 0" xyz="0 0 0.0"/>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="table.obj" scale="1.2 1.0 0.05"/>
+        <mesh filename="table.obj" scale="0.87 1.77 0.025"/>
       </geometry>
       <material name="white">
         <color rgba="1 1 1 1"/>
       </material>
     </visual>
     <collision>
-      <origin rpy="0 0 0" xyz="0 0 0.0"/>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
       <geometry>
-        <box size="1.2 1.0 0.05"/>
+        <box size="0.87 1.77 0.025"/>
       </geometry>
     </collision>
   </link>
 </robot>
+
 

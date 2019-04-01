@@ -61,3 +61,16 @@ class PointCloudPublisher(object):
                 r.sleep()
             except rospy.exceptions.ROSTimeMovedBackwardsException:
                 pass
+
+    def publish(self):
+
+        header = std_msgs.msg.Header()
+        header.stamp = rospy.Time.now()
+        header.frame_id = self.frame_name
+
+        global g_mutex
+        g_mutex.acquire()
+        pcl_data = pcl2.create_cloud(header, self.fields, self.points)
+        g_mutex.release()
+
+        self.pub.publish(pcl_data)

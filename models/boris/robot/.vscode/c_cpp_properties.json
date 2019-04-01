@@ -1,0 +1,33 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/earruda/Projects/boris_ws/devel/include",
+        "/opt/ros/kinetic/include",
+        "/home/earruda/Projects/boris_ws/src/aruco_ros/aruco/include",
+        "/home/earruda/Projects/boris_ws/src/aruco_ros/aruco_ros/include",
+        "/home/earruda/Projects/boris_ws/src/boris-robot/boris_controllers/include",
+        "/home/earruda/Projects/boris_ws/src/force_torque_tools/force_torque_sensor_calib/include",
+        "/home/earruda/Projects/boris_ws/src/pisa-iit-soft-hand/gazebo_ros_soft_hand/include",
+        "/home/earruda/Projects/boris_ws/src/force_torque_tools/gravity_compensation/include",
+        "/home/earruda/Projects/boris_ws/src/kit-head/kit_head_hw/include",
+        "/home/earruda/Projects/boris_ws/src/kuka-lwr/lwr_controllers/include",
+        "/home/earruda/Projects/boris_ws/src/kuka-lwr/lwr_hw/include",
+        "/home/earruda/Projects/boris_ws/src/moveit_cartesian_plan_plugin/include",
+        "/home/earruda/Projects/boris_ws/src/jsk_common_msgs/posedetection_msgs/include",
+        "/home/earruda/Projects/boris_ws/src/robot_markers/include",
+        "/home/earruda/Projects/boris_ws/src/pisa-iit-soft-hand/soft_hand_ros_control/include",
+        "/home/earruda/Projects/boris_ws/src/temporal_grasp_ros/include",
+        "/home/earruda/Projects/boris_ws/src/trac_ik/trac_ik_kinematics_plugin/include",
+        "/home/earruda/Projects/boris_ws/src/trac_ik/trac_ik_lib/include",
+        "/home/earruda/Projects/boris_ws/src/transform_graph/include",
+        "/usr/include"
+      ],
+      "name": "Linux"
+    }
+  ]
+}

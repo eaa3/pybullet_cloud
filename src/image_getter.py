@@ -26,13 +26,15 @@ class ImageGetter(object):
         self.roll = 0.0
         self.camDistance = 1.5
 
-        self.pixelWidth = 320
-        self.pixelHeight = 240
+        self.pixelWidth = 640
+        self.pixelHeight = 640
         self.aspect = self.pixelWidth / self.pixelHeight
 
         self.nearPlane = 0.01
         self.farPlane = 5.0
         self.fov = 57.0
+        # Primesense carmine 1.09 field of view
+        #horizontal FOV of 57.5 degrees and vertical FOV of 45 degrees.
 
         self.projectionMatrix = p.computeProjectionMatrixFOV(self.fov, self.aspect,
                                                              self.nearPlane, self.farPlane,
@@ -43,6 +45,20 @@ class ImageGetter(object):
                                                               upAxisIndex=2, physicsClientId=self._id)
 
         self.setCameraParams()
+
+    def setCameraPosition(self, position):
+        self.camTargetPos = position
+    
+
+    def setCameraPose(self, position, orientation):
+        pass
+        #cameraEyePosition
+        #cameraTargetPosition
+        #cameraUpVector
+        #physicsClientId
+        #computeViewMatrix
+
+
 
     def setCameraParams(self):
         # https://blog.noctua-software.com/opencv-opengl-projection-matrix.html
@@ -76,7 +92,6 @@ class ImageGetter(object):
 
         depth_image = np.array(self.dep).T
         depth_image = self.farPlane* self.nearPlane / (self.farPlane - (self.farPlane - self.nearPlane) * depth_image)
-
         i = 0
         for row in range(self.pixelWidth):
             for col in range(self.pixelHeight):
