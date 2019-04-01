@@ -43,6 +43,7 @@ class ImageGetter(object):
         self.viewMatrix = p.computeViewMatrixFromYawPitchRoll(self.camTargetPos, self.camDistance,
                                                               yaw=self.yaw, pitch=self.pitch, roll=self.roll,
                                                               upAxisIndex=2, physicsClientId=self._id)
+        self.xyz_rgb = np.zeros((self.pixelWidth * self.pixelHeight, 6))
 
         self.setCameraParams()
 
@@ -88,17 +89,39 @@ class ImageGetter(object):
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
 
     def createPointCloud(self):
-        xyz_rgb = np.zeros((self.pixelWidth * self.pixelHeight, 6))
+        xyz_rgb = self.xyz_rgb
 
         depth_image = np.array(self.dep).T
         depth_image = self.farPlane* self.nearPlane / (self.farPlane - (self.farPlane - self.nearPlane) * depth_image)
         i = 0
-        for row in range(self.pixelWidth):
-            for col in range(self.pixelHeight):
-                z = depth_image[row, col]
-                xyz_rgb[i, 0] = (row - self.cx) / self.fx * z
-                xyz_rgb[i, 1] = (col - self.cy) / self.fy * z
-                xyz_rgb[i, 2] = -z
-                xyz_rgb[i, 3:6] = self.rgb[col, row, :3]
-                i = i + 1
-        return xyz_rgb
+
+        rows, cols = depth_image.shape
+
+        c, r = np.meshgrid(np.arange(cols), np.arange(rows), sparse=True)
+        valid = (depth_image > 0) #
+        z = np.where(valid, -depth_image , np.nan)
+        x = np.where(valid, -z * (r - self.cx) / self.fx, 0)
+        y = np.where(valid, -z * (c - self.cy) / self.fy, 0)
+        rgb = np.flipud(np.rot90(self.rgb))#[:, :,:3] #np.where(valid, self.rgb[r, c,:], [0,0,0])
+        #
+        points = np.dstack((x, y, z,rgb))
+
+        point_list = points.reshape(-1,7)
+        # print "RGB shape: ", rgb.shape
+        # points = np.vstack([x,y,z])
+        # print "Point shape: ", points.shape
+        # points = np.vstack([x,y,z,rgb])#np.dstack((x, y, z, rgb))
+        # print points.shape
+
+        # colors = np.where(valid, rgb[col, row, :3], 0) 
+        # points = np.dstack((x, y, z))
+        # for row in range(self.pixelWidth):
+        #     for col in range(self.pixelHeight):
+        #         z = depth_image[row, col]
+        #         xyz_rgb[i, 0] = (row - self.cx) / self.fx * z
+        #         xyz_rgb[i, 1] = (col - self.cy) / self.fy * z
+        #         xyz_rgb[i, 2] = -z
+        #         xyz_rgb[i, 3:6] = self.rgb[col, row, :3]
+        #         i = i + 1
+        
+        return point_list

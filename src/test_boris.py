@@ -45,6 +45,10 @@ if __name__ == "__main__":
 
     p.loadURDF(model_dir + '/models/table/table.urdf', [0.5,0.0,-0.33],
                useFixedBase=True, physicsClientId=pcid)
+    object_id = p.loadURDF(model_dir + '/models/object_models/urdf/bowl.urdf',
+                       useFixedBase=False, physicsClientId=pcid)
+
+    p.resetBasePositionAndOrientation(object_id,[0.5,0.6,-0.32],[0,0,0,1], physicsClientId=pcid)
 
     robot = p.loadURDF(model_dir + '/models/boris/boris.urdf',
                        useFixedBase=True, physicsClientId=pcid)
@@ -139,20 +143,25 @@ if __name__ == "__main__":
                     #joint_states = p.getJointStates(robot, mimic_joint_ids, physicsClientId=pcid)
                 #angles = [ s[0] for s in joint_states]
                 #print angles
-        if loop_count%10 == 0:
+        if loop_count%20 == 0:
+            
+
             image_getter.getImage()
+            
             xyz_rgb = image_getter.createPointCloud()
 
             ##########################################################
-            " Visualization by using rviz"
+            # " Visualization by using rviz"
+            t0 = time.time()
             pcl_node.update(xyz_rgb)
+            print "Cloud processing time: ", (time.time()-t0,)
             pcl_node.publish()
             br.sendTransform(image_getter.camera_pos,
                              image_getter.camera_quat,
                              rospy.Time.now(),
                              "bullet_camera", "world")
             ##########################################################
-
+            
         p.stepSimulation(physicsClientId=pcid)
         time.sleep(time_step)
         loop_count += 1
