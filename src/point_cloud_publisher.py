@@ -10,7 +10,7 @@ import struct
 import threading
 import signal
 
-#g_mutex = threading.Lock()
+g_mutex = threading.Lock()
 
 def RGB2Uint(rgb):
     rgb_hex = struct.pack('BBB',*rgb).encode('hex')
@@ -22,10 +22,10 @@ class PointCloudPublisher(object):
 
         self.fields = [PointField(name='x', offset=0, datatype=PointField.FLOAT32, count=1),
                        PointField(name='y', offset=4, datatype=PointField.FLOAT32, count=1),
-                       PointField(name='z', offset=8, datatype=PointField.FLOAT32, count=1),
-                       PointField(name='rgb', offset=12, datatype=PointField.UINT32, count=1)]
+                       PointField(name='z', offset=8, datatype=PointField.FLOAT32, count=1),]
+                    #    PointField(name='rgb', offset=12, datatype=PointField.UINT32, count=1)]
 
-        self.points = [[0.0, 0.0, 0.0, RGB2Uint((0,0,0))]]
+        # self.points = [[0.0, 0.0, 0.0, RGB2Uint((0,0,0))]]
         self.frame_name = "bullet_camera"
         self.points = None
 
@@ -34,16 +34,19 @@ class PointCloudPublisher(object):
         signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     def update(self, xyz_rgb):
-        #global g_mutex
-        #g_mutex.acquire()
-        if self.points is None:
-            self.points = [None]*xyz_rgb.shape[0]
+        global g_mutex
+        g_mutex.acquire()
+        self.points = np.array(xyz_rgb)
+        # if self.points is None:
+        #     self.points = [None]*xyz_rgb.shape[0]
             
-        for i in range(xyz_rgb.shape[0]):
-            R, G, B = int(xyz_rgb[i,3]), int(xyz_rgb[i,4]), int(xyz_rgb[i,5])
-            point = [xyz_rgb[i,0], xyz_rgb[i,1], xyz_rgb[i,2], RGB2Uint((R,G,B))]
-            self.points[i] = point
-        #g_mutex.release()
+        # for i in range(xyz_rgb.shape[0]):
+        #     R, G, B = int(xyz_rgb[i,3]), int(xyz_rgb[i,4]), int(xyz_rgb[i,5])
+        #     point = [xyz_rgb[i,0], xyz_rgb[i,1], xyz_rgb[i,2], RGB2Uint((R,G,B))]
+        #     self.points[i] = point
+        g_mutex.release()
+
+        # print "Great"
 
     def loop(self):
         r = rospy.Rate(10) # Hz
@@ -71,9 +74,9 @@ class PointCloudPublisher(object):
         header.stamp = rospy.Time.now()
         header.frame_id = self.frame_name
 
-        #global g_mutex
-        #g_mutex.acquire()
+        global g_mutex
+        g_mutex.acquire()
         pcl_data = pcl2.create_cloud(header, self.fields, self.points)
-        #g_mutex.release()
+        g_mutex.release()
 
         self.pub.publish(pcl_data)

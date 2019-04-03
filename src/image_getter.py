@@ -102,11 +102,12 @@ class ImageGetter(object):
         z = np.where(valid, -depth_image , np.nan)
         x = np.where(valid, -z * (r - self.cx) / self.fx, 0)
         y = np.where(valid, -z * (c - self.cy) / self.fy, 0)
-        rgb = np.flipud(np.rot90(self.rgb))#[:, :,:3] #np.where(valid, self.rgb[r, c,:], [0,0,0])
+        # rgb = np.flipud(np.rot90(self.rgb))#[:, :,:3] #np.where(valid, self.rgb[r, c,:], [0,0,0])
         #
-        points = np.dstack((x, y, z,rgb))
-
-        point_list = points.reshape(-1,7)
+        # points = np.dstack((x, y, z,rgb))
+        points = np.dstack((x, y, z))
+        point_list = points.reshape(-1,3)
+        # point_list = points.reshape(-1,7)
         # print "RGB shape: ", rgb.shape
         # points = np.vstack([x,y,z])
         # print "Point shape: ", points.shape
@@ -123,5 +124,5 @@ class ImageGetter(object):
         #         xyz_rgb[i, 2] = -z
         #         xyz_rgb[i, 3:6] = self.rgb[col, row, :3]
         #         i = i + 1
-        
+        # print "Got it!"
         return point_list
