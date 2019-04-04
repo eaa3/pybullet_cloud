@@ -17,7 +17,7 @@ class BulletSimulation(object):
 
         self.time_step = time_step
 
-        self.pcid = p.connect(p.GUI)
+        self.pcid = p.connect(p.DIRECT)
         if self.pcid < 0:
             self.pcid = p.connect(pb.UDP, "127.0.0.1")
         # pcid = p.connect(pb.UDP, "127.0.0.1")
@@ -58,7 +58,7 @@ class BulletSimulation(object):
 
         self.object_id = p.loadURDF(self.object_path,
                         useFixedBase=False, physicsClientId=self.pcid)
-        p.resetBasePositionAndOrientation(self.object_id,[0.5,0.6,-0.32],[0,0,0,1], physicsClientId=self.pcid)
+        p.resetBasePositionAndOrientation(self.object_id,[0.5,0.6,-0.29],[0,0,0,1], physicsClientId=self.pcid)
 
 
     def step(self):
@@ -80,10 +80,10 @@ if __name__ == "__main__":
 
     # roscore = subprocess.Popen('roscore', shell=True)
     # atexit.register(roscore.kill)
-    time.sleep(2)
-    rviz = subprocess.Popen('rviz', shell=True)
-    atexit.register(rviz.kill)
-    time.sleep(2)
+    # time.sleep(2)
+    # rviz = subprocess.Popen('rviz', shell=True)
+    # atexit.register(rviz.kill)
+    # time.sleep(2)
 
     
     keyboard = KBHit()
@@ -119,6 +119,8 @@ if __name__ == "__main__":
     next_object_sub = rospy.Subscriber("sim/next_object/", String, next_object_callback, queue_size=None)
 
     rate = rospy.Rate(30)
+
+    rospy.loginfo("Running...")
     while not rospy.is_shutdown():
         # print loop_count
 

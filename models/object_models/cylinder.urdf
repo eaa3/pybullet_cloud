@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+
+<robot name="object">
+  <link name="object">
+
+    <contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <!-- <inertia_scaling value="3.0"/> -->
+      <!-- <contact_cfm value="0.0"/> -->
+      <!-- <contact_erp value="1.0"/> -->
+      <restitution value="0.0"/>
+    </contact>
+
+    <inertial>
+      <origin xyz="0.0 0.0 0.0" />
+      <mass value="0.5" />
+      <inertia  ixx="1" ixy="0.0"  ixz="0.0"  iyy="1"  iyz="0.0"  izz="1" />
+    </inertial>
+
+    <!-- real size 7.5 11.5 22.5 -->
+    <visual>
+      <origin rpy="0 0 0.0"  xyz="0.0 0.0 0.1"/>
+      <geometry>
+        <!-- <box size="0.225 0.075 0.115" /> -->
+        <!-- <box size="0.075 0.075 0.115" /> -->
+        <!-- <box size="0.15 0.075 0.115" /> -->
+        <cylinder length="0.20" radius="0.020"/>
+        <!-- <sphere radius="0.05"/> -->
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0.0" xyz="0.0 0.0 0.1"/>
+      <geometry>
+        <!-- <box size="0.225 0.075 0.115" /> -->
+        <!-- <box size="0.075 0.075 0.115" /> -->
+        <!-- <box size="0.15 0.075 0.115" /> -->
+        <cylinder length="0.20" radius="0.020"/>
+        <!-- <sphere radius="0.05"/> -->
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- <link name="marker">
+    <visual>
+      <geometry>
+        <box size="0.09 0.09 0.001" />
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.09 0.09 0.001" />
+      </geometry>
+    </collision>
+  </link> -->
+
+  <!-- <joint name="marker_fixed" type="fixed">
+    <origin rpy="1.5701 0 1.5701" xyz="0.115 0 0.0"/>
+    <parent link="object"/>
+    <child link="marker"/>
+  </joint> -->
+
+  <!-- <gazebo>
+    <static>true</static>
+  </gazebo> -->
+
+  <gazebo reference="object">
+    <material>Gazebo/Red</material>
+     <mu1>100</mu1>
+     <mu2>100</mu2>
+     <kp>1e7</kp>
+     <kd>1.0</kd>
+     <maxVel>0.1</maxVel>
+     <minDepth>0.001</minDepth>
+  </gazebo>
+
+  <!-- <gazebo reference="marker">
+    <material>Aruco/marker582</material>
+  </gazebo> -->
+
+</robot>
