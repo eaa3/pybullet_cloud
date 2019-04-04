@@ -16,15 +16,33 @@ def addDebugFrame(pos, quat, length=0.2, lw=2, duration=0.2, pcid=0):
     item_id[2] = p.addUserDebugLine(pos, toZ, [0, 0, 1], lw, duration, physicsClientId=pcid)
     return item_id
 
+class CameraPose(object):
+
+    def __init__(self, position, rpy, distance):
+        self.position = position
+        self.rpy = rpy
+        self.distance = distance
+
 class ImageGetter(object):
     def __init__(self, pcid):
         self._id = pcid
 
-        self.camTargetPos = [0.3, 0.0, 0.5]
-        self.pitch = -30.0
-        self.yaw = 90.0
-        self.roll = 0.0
-        self.camDistance = 1.5
+        self.camera_poses = []
+        self.camera_poses.append(CameraPose([0.3, 0.0, 0.5],[0.0, -30.0, 90.0],1.5))
+        self.camera_poses.append(CameraPose([0.50,0.35,0.20],[0.0, 4.60, 168.0],1.5))
+        self.camera_poses.append(CameraPose([1.0,-0.02,-1.31],[0.0, -46.6, 214.0],1.9))
+        self.camera_poses.append(CameraPose([0.6,0.62,-0.55],[0.0, -39.0, 320.0],1.5))
+
+        self.camera_idx = 0
+
+        camera_pose = self.camera_poses[self.camera_idx]
+
+        self.camTargetPos = camera_pose.position#[0.3, 0.0, 0.5]
+        self.roll = camera_pose.rpy[0]
+        self.pitch = camera_pose.rpy[1]
+        self.yaw = camera_pose.rpy[2]
+        
+        self.camDistance = camera_pose.distance
 
         self.pixelWidth = 640
         self.pixelHeight = 640
@@ -36,30 +54,52 @@ class ImageGetter(object):
         # Primesense carmine 1.09 field of view
         #horizontal FOV of 57.5 degrees and vertical FOV of 45 degrees.
 
+        self.xyz_rgb = np.zeros((self.pixelWidth * self.pixelHeight, 6))
+
+
+
         self.projectionMatrix = p.computeProjectionMatrixFOV(self.fov, self.aspect,
                                                              self.nearPlane, self.farPlane,
                                                              physicsClientId=self._id)
+        self.viewMatrix = None
 
+        self.setCameraPose()
+
+    def setCameraPose(self, idx = 0):
+        assert idx < len(self.camera_poses)
+
+        self.camera_idx = idx
+
+        camera_pose = self.camera_poses[self.camera_idx]
+
+        self.camTargetPos = camera_pose.position
+        self.roll = camera_pose.rpy[0]
+        self.pitch = camera_pose.rpy[1]
+        self.yaw = camera_pose.rpy[2]
+        self.camDistance = camera_pose.distance
+        
         self.viewMatrix = p.computeViewMatrixFromYawPitchRoll(self.camTargetPos, self.camDistance,
                                                               yaw=self.yaw, pitch=self.pitch, roll=self.roll,
                                                               upAxisIndex=2, physicsClientId=self._id)
-        self.xyz_rgb = np.zeros((self.pixelWidth * self.pixelHeight, 6))
+
+
+        p.resetDebugVisualizerCamera(cameraDistance=self.camDistance,
+                                    cameraYaw=self.yaw, cameraPitch=self.pitch,
+                                    cameraTargetPosition = self.camTargetPos
+                                    )
 
         self.setCameraParams()
 
-    def setCameraPosition(self, position):
-        self.camTargetPos = position
-    
+    def nextCameraPose(self):
+        idx = (self.camera_idx+1)%len(self.camera_poses)
 
-    def setCameraPose(self, position, orientation):
-        pass
-        #cameraEyePosition
-        #cameraTargetPosition
-        #cameraUpVector
-        #physicsClientId
-        #computeViewMatrix
+        self.setCameraPose(idx)
 
+    def previousCameraPose(self):
+        idx = (self.camera_idx-1)
+        idx = (len(self.camera_poses)-1) if idx < 0 else idx
 
+        self.setCameraPose(idx)
 
     def setCameraParams(self):
         # https://blog.noctua-software.com/opencv-opengl-projection-matrix.html
@@ -75,7 +115,7 @@ class ImageGetter(object):
         self.camera_pos = self.extrinsic_params[0:3, 3]
         self.camera_quat = tt.quaternion_from_matrix(self.extrinsic_params)
 
-        addDebugFrame(self.camera_pos, self.camera_quat, 0.2, 2, 0, self._id)
+        addDebugFrame(self.camera_pos, self.camera_quat, 0.2, 2, 10.0, self._id)
 
     def getImage(self):
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
