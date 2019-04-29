@@ -17,7 +17,7 @@ class BulletSimulation(object):
 
         self.time_step = time_step
 
-        self.pcid = p.connect(p.DIRECT)
+        self.pcid = p.connect(p.GUI)
         if self.pcid < 0:
             self.pcid = p.connect(pb.UDP, "127.0.0.1")
         # pcid = p.connect(pb.UDP, "127.0.0.1")
@@ -26,7 +26,7 @@ class BulletSimulation(object):
 
         model_dir = os.getcwd() # Hack
         self.object_path = model_dir + '/models/object_models/cube_small.urdf'
-        self.table_path = model_dir + '/models/table/table.urdf'
+        self.table_path = model_dir + '/models/table_plane/plane100.urdf'
 
     def reset(self, object_path = None):
         
@@ -42,12 +42,13 @@ class BulletSimulation(object):
 
         p.resetSimulation(physicsClientId=self.pcid)
         p.setGravity(0, 0, -9.81, physicsClientId=self.pcid)
-        # p.setPhysicsEngineParameter(numSolverIterations=150, physicsClientId=self.pcid)
+        p.setPhysicsEngineParameter(numSolverIterations=10, physicsClientId=self.pcid)
         
         p.setTimeStep(self.time_step, physicsClientId=self.pcid)
         p.setRealTimeSimulation(1)
 
-        p.loadURDF(self.table_path, [0.5,0.0,-0.355],
+        # for table.urdf => [0.5,0.0,-0.355]
+        p.loadURDF(self.table_path, [0.5,0.0,-0.33], globalScaling=0.1,
                 useFixedBase=True, physicsClientId=self.pcid)
 
 
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     next_camera_sub = rospy.Subscriber("sim/next_camera/", Int32, next_camera_callback, queue_size=None)
     next_object_sub = rospy.Subscriber("sim/next_object/", String, next_object_callback, queue_size=None)
 
-    rate = rospy.Rate(30)
+    rate = rospy.Rate(40)
 
     rospy.loginfo("Running...")
     while not rospy.is_shutdown():
