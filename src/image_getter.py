@@ -4,6 +4,7 @@
 import numpy as np
 import pybullet as p
 import tf.transformations as tt
+import matplotlib.pyplot as plt
 
 def addDebugFrame(pos, quat, length=0.2, lw=2, duration=0.2, pcid=0):
     rot_mat = np.array(p.getMatrixFromQuaternion(quat)).reshape(3, 3).transpose()
@@ -136,6 +137,17 @@ class ImageGetter(object):
         i = 0
 
         rows, cols = depth_image.shape
+
+
+        # Corrupt image with noise
+        std_dev = np.sqrt(0.005)
+        depth_image = depth_image + np.random.randn(rows, cols)*std_dev
+        mask = (np.random.uniform(0,1,size=depth_image.shape) > 0.95).astype(np.bool)
+        # Randomly set 5% of the depth pixels to 0
+        depth_image[mask] = 0
+
+        # plt.imshow(depth_image)
+        # plt.show()
 
         c, r = np.meshgrid(np.arange(cols), np.arange(rows), sparse=True)
         valid = (depth_image > 0) #
