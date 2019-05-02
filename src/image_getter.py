@@ -140,7 +140,7 @@ class ImageGetter(object):
         # Corrupt image with noise
         rows, cols = depth_image.shape
 
-        std_dev = np.sqrt(0.001)
+        std_dev = 0.001
         std_p = 1
         std_v = 1
         rint = normal_random_integer(rows+cols,0,std_p)
@@ -155,8 +155,9 @@ class ImageGetter(object):
         #         # print(fi,fj)
         
         noise = np.random.randn(rows, cols)*std_dev
-        noise[ noise < -0.015 ] = -0.015
-        noise[ noise > 0.015 ] = 0.015
+        noise_cutoff = 0.005
+        noise[ noise < -noise_cutoff ] = -noise_cutoff
+        noise[ noise > noise_cutoff ] = noise_cutoff
         depth_image = depth_image + noise
         # mask = (np.random.uniform(0,1,size=depth_image.shape) > 0.95).astype(np.bool)
         # # Randomly set 5% of the depth pixels to 0

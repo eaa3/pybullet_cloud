@@ -91,7 +91,7 @@ if __name__ == "__main__":
     
 
     print("Initializing node... ")
-    rospy.init_node('bullet_point_cloud2')
+    rospy.init_node('bullet_point_cloud')
     pcl_node = PointCloudPublisher()
     #pcl_node.run_thread()
 
@@ -131,12 +131,12 @@ if __name__ == "__main__":
         ##########################################################
         #" Visualization by using rviz"
         stamp = rospy.Time.now()
-        # pcl_node.update(xyz_rgb)
-        # pcl_node.publish(stamp)
-        # br.sendTransform(image_getter.camera_pos,
-        #                      image_getter.camera_quat,
-        #                      stamp,
-        #                      "bullet_camera", "world")
+        pcl_node.update(xyz_rgb)
+        pcl_node.publish(stamp)
+        br.sendTransform(image_getter.camera_pos,
+                             image_getter.camera_quat,
+                             stamp,
+                             "bullet_camera", "world")
         ##########################################################
 
         rospy.logdebug("Cloud creation time: %f"%(time.time()-t0))
