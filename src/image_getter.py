@@ -5,6 +5,8 @@ import numpy as np
 import pybullet as p
 import tf.transformations as tt
 import matplotlib.pyplot as plt
+from scipy.stats import norm
+import time
 
 def addDebugFrame(pos, quat, length=0.2, lw=2, duration=0.2, pcid=0):
     rot_mat = np.array(p.getMatrixFromQuaternion(quat)).reshape(3, 3).transpose()
@@ -23,6 +25,10 @@ class CameraPose(object):
         self.position = position
         self.rpy = rpy
         self.distance = distance
+
+def normal_random_integer(samples = 1, mean = 0, std = 1):
+    
+    return norm.ppf(np.random.random(samples), loc=mean, scale=std).astype(int)
 
 class ImageGetter(object):
     def __init__(self, pcid):
@@ -129,6 +135,35 @@ class ImageGetter(object):
         self.dep = img_arr[3] # depth data
         p.configureDebugVisualizer(p.COV_ENABLE_RENDERING, 1)
 
+    def corruptImage(self, depth_image):
+        # zˆ(u, v) = z(u + N (0, σ2p), v + N (0, σ2p)) + N (0, σ2d)
+        # Corrupt image with noise
+        rows, cols = depth_image.shape
+
+        std_dev = np.sqrt(0.001)
+        std_p = 1
+        std_v = 1
+        rint = normal_random_integer(rows+cols,0,std_p)
+        ris = np.minimum(np.maximum(rint[:rows] + np.arange(rows),0),rows-1)
+        rjs = np.minimum(np.maximum(rint[rows:] + np.arange(cols),0),cols-1)
+
+        # for i in range(rows):
+        #     for j in range(cols):
+        #         ri = ris[i]
+        #         rj = rjs[j]
+        #         depth_image[i,j] = depth_image[ri,rj]
+        #         # print(fi,fj)
+        
+        noise = np.random.randn(rows, cols)*std_dev
+        noise[ noise < -0.015 ] = -0.015
+        noise[ noise > 0.015 ] = 0.015
+        depth_image = depth_image + noise
+        # mask = (np.random.uniform(0,1,size=depth_image.shape) > 0.95).astype(np.bool)
+        # # Randomly set 5% of the depth pixels to 0
+        # depth_image[mask] = 0
+
+        return depth_image
+
     def createPointCloud(self):
         xyz_rgb = self.xyz_rgb
 
@@ -139,15 +174,14 @@ class ImageGetter(object):
         rows, cols = depth_image.shape
 
 
-        # Corrupt image with noise
-        std_dev = np.sqrt(0.005)
-        depth_image = depth_image + np.random.randn(rows, cols)*std_dev
-        mask = (np.random.uniform(0,1,size=depth_image.shape) > 0.95).astype(np.bool)
-        # Randomly set 5% of the depth pixels to 0
-        depth_image[mask] = 0
+
+        t0 = time.time()
+        
+        depth_image = self.corruptImage(depth_image)
 
         # plt.imshow(depth_image)
         # plt.show()
+
 
         c, r = np.meshgrid(np.arange(cols), np.arange(rows), sparse=True)
         valid = (depth_image > 0) #
@@ -177,4 +211,5 @@ class ImageGetter(object):
         #         xyz_rgb[i, 3:6] = self.rgb[col, row, :3]
         #         i = i + 1
         # print "Got it!"
+        # print("Time elapsed %.3f"%(time.time()-t0,))
         return point_list
