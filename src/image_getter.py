@@ -137,28 +137,29 @@ class ImageGetter(object):
 
     def corruptImage(self, depth_image):
         # zˆ(u, v) = z(u + N (0, σ2p), v + N (0, σ2p)) + N (0, σ2d)
+        # Ed John's paper
         # Corrupt image with noise
         rows, cols = depth_image.shape
 
         std_dev = 0.001
         std_p = 1
         std_v = 1
-        rint = normal_random_integer(rows+cols,0,std_p)
-        ris = np.minimum(np.maximum(rint[:rows] + np.arange(rows),0),rows-1)
-        rjs = np.minimum(np.maximum(rint[rows:] + np.arange(cols),0),cols-1)
+        rintc = normal_random_integer(rows*cols,0,std_p).reshape(rows,cols)
+        rintr = normal_random_integer(rows*cols,0,std_p).reshape(rows,cols)
 
-        # for i in range(rows):
-        #     for j in range(cols):
-        #         ri = ris[i]
-        #         rj = rjs[j]
-        #         depth_image[i,j] = depth_image[ri,rj]
-        #         # print(fi,fj)
+        c, r = np.meshgrid(np.arange(cols), np.arange(rows), sparse=False)
+        c_new = np.minimum(np.maximum(rintc + c,0),rows-1)
+        r_new = np.minimum(np.maximum(rintr + r,0),cols-1)
+
+        depth_image[c,r] = depth_image[c_new,r_new] # zˆ(u, v) = z(u + N (0, σ2p), v + N (0, σ2p))
         
         noise = np.random.randn(rows, cols)*std_dev
         noise_cutoff = 0.005
         noise[ noise < -noise_cutoff ] = -noise_cutoff
         noise[ noise > noise_cutoff ] = noise_cutoff
-        depth_image = depth_image + noise
+        depth_image = depth_image + noise # zˆ(u, v) = zˆ(u, v) + N (0, σ2d)
+
+
         # mask = (np.random.uniform(0,1,size=depth_image.shape) > 0.95).astype(np.bool)
         # # Randomly set 5% of the depth pixels to 0
         # depth_image[mask] = 0
@@ -170,7 +171,7 @@ class ImageGetter(object):
 
         depth_image = np.array(self.dep).T
         depth_image = self.farPlane* self.nearPlane / (self.farPlane - (self.farPlane - self.nearPlane) * depth_image)
-        i = 0
+        # i = 0
 
         rows, cols = depth_image.shape
 
@@ -212,5 +213,5 @@ class ImageGetter(object):
         #         xyz_rgb[i, 3:6] = self.rgb[col, row, :3]
         #         i = i + 1
         # print "Got it!"
-        # print("Time elapsed %.3f"%(time.time()-t0,))
+        print("Time elapsed %.3f"%(time.time()-t0,))
         return point_list
